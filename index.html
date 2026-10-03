@@ -1,0 +1,1213 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  Search, 
+  MapPin, 
+  Tv, 
+  Award, 
+  UserPlus, 
+  ChevronRight, 
+  Youtube, 
+  Send, 
+  MessageSquare, 
+  Sparkles, 
+  Clock, 
+  ArrowLeft,
+  CheckCircle,
+  X,
+  Building,
+  Heart,
+  Compass,
+  ArrowUpRight,
+  Quote,
+  Users
+} from 'lucide-react';
+
+// ① シンプルかつ印象的なブランドロゴ（Locaspot：地方の才能にスポットライトを）
+const BrandLogo = ({ showSub = true }) => {
+  return (
+    <div className="flex flex-col items-start select-none">
+      <div className="flex items-center text-stone-900 tracking-tight font-sans">
+        <span className="text-xl font-black tracking-tight text-stone-900">Loca</span>
+        <span className="text-xl font-light tracking-tight text-amber-600 ml-0.5">spot</span>
+        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 ml-1 animate-pulse" />
+      </div>
+      {showSub && (
+        <span className="text-[9px] tracking-[0.2em] text-stone-400 font-medium pl-[1px] -mt-0.5 uppercase">
+          ロカスポット｜地方からでも、見つかる。
+        </span>
+      )}
+    </div>
+  );
+};
+
+// ② リアリティあふれる10組の地方芸人・タレントのデータ
+const INITIAL_ARTISTS = [
+  {
+    id: '1',
+    name: 'オリーブ坂口',
+    duoName: 'ピン芸人',
+    region: '香川県',
+    experience: 5,
+    genre: 'ピン芸・ロケ',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '「東京に出ないとロケタレントになれない」と思っていました。でも地元うどん屋で鍛えた人当たりの良さとアポなし交渉力は、誰にも負けない自信があります。',
+    career: '・RSK山陽放送「情報ワイド あれこれ」中継リポーター（2024〜）\n・瀬戸内お笑いグランプリ 準優勝（2025）\n・地元ショッピングモール イベント司会 多数',
+    contribution: '瀬戸内の「食」と「地場産業」の魅力を、持ち前の人当たりの良さと体当たりロケで120%伝えます！',
+    strength: '現役のうどん屋アルバイトでもあり、県内約100店舗の店主と顔馴染み。アポ無し突撃ロケでの交渉成功率は95%を誇ります。',
+    tag: 'アポなしロケ特化'
+  },
+  {
+    id: '2',
+    name: '雷電ボルト',
+    duoName: '（太田・新井）',
+    region: '福岡県',
+    experience: 3,
+    genre: '漫才・Z世代コンテンツ',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '「地方で深夜ラジオやYoutubeをやっても届かない」なんて言わせない。福岡の若い熱気を全国へ広げるバズの仕掛けを自分たちで作っています。',
+    career: '・KBCラジオ「深夜の爆音パラダイス」レギュラー（2025〜）\n・M-1グランプリ 3回戦進出（2024, 2025）\n・福岡インディーズお笑いフェス 優勝',
+    contribution: '若年層（10代〜20代）をターゲットにした深夜枠のラジオ・番組で、SNS連動のハッシュタグバズを起こせます！',
+    strength: 'ツッコミの太田がプログラミング、ボケの新井が映像編集のプロ。番組の告知ショート動画を自分たちで制作し、初週10万再生を連発可能です。',
+    tag: 'TikTok・SNSバズ'
+  },
+  {
+    id: '3',
+    name: 'なまはげシスターズ',
+    duoName: '（ゆきこ・あきこ）',
+    region: '秋田県',
+    experience: 8,
+    genre: 'コント・行政タイアップ',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '地元の集落やお年寄りと触れ合う中で培った笑いは、テレビの向こうの家族全員を笑顔にする温かさを持っています。',
+    career: '・秋田テレビ「お昼の特番」スタジオゲスト出演（2023）\n・東北コントコンテスト 審査員特別賞（2024）\n・地元警察署 一日署長（2025）',
+    contribution: 'シニア層から絶大な好感度あり！地域の伝統行事や自治体タイアップ、防災・防犯啓発番組に最適です。',
+    strength: '秋田弁をネイティブに操り、おばあちゃん世代の懐に入り込むスピードが武器。行政からの啓発案件やPRの実績数が東北No.1です。',
+    tag: 'シニア好感度・自治体'
+  },
+  {
+    id: '4',
+    name: 'ミッドナイト東海',
+    duoName: '（大野・浅井）',
+    region: '愛知県',
+    experience: 6,
+    genre: '王道しゃべくり漫才',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '名古屋の演芸場で毎日舞台に立ち続けてきました。東京の流行りに乗るのではなく、圧倒的なテンポと実力で勝負します。',
+    career: '・東海テレビ 深夜特番「次世代スター発掘」出演（2024）\n・名古屋お笑い選手権 優勝（2025）\n・大須演芸場 常連出演中',
+    contribution: '東海エリアのグルメ・トレンド紹介番組において、テンポの早い「しゃべくり」でスタジオを確実に盛り上げます。',
+    strength: '大野の「絶対音感」を活かした音モノ即興漫才と、浅井のガチな実家（創業120年の老舗和菓子店）コネクションを活かした独自グルメ情報。',
+    tag: '舞台仕込みの漫才'
+  },
+  {
+    id: '5',
+    name: 'どさんこ吹雪',
+    duoName: '（長谷川・佐藤）',
+    region: '北海道',
+    experience: 22,
+    genre: '農業漫才・シニアトーク',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '60歳をすぎてからのお笑い挑戦。昼は畑を耕し、夜は漫才。北海道の広大な大地が生んだ人生の深みと笑いをお届けします。',
+    career: '・NHK札幌「農業の未来と生きる」不定期コメンテーター（2021〜）\n・JA北海道 収穫祭メインMC（毎年）\n・北海道知事表彰（地域貢献特別賞・2024）',
+    contribution: 'JA組合員大会、地方の農業復興祭、中高年向け公開収録を確実に笑顔で沸かせ、地元熱を高めます！',
+    strength: '平均年齢62歳のリアル現役農家コンビ。自虐を交えた「農業あるある」「シルバー川柳」は北海道の一次産業従事者から熱狂的な支持があります。',
+    tag: '現役農家・人生の深み'
+  },
+  {
+    id: '6',
+    name: '金沢かがやき',
+    duoName: 'ピン芸人',
+    region: '石川県',
+    experience: 2,
+    genre: 'アート解説・インテリ解説',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '元学芸員として美術の魅力を伝える中で「笑い」の力を実感。金沢の文化・アートを誰よりも分かりやすくポップに解凍します。',
+    career: '・石川テレビ「金沢ぶらり美学」レギュラー解説員（2025〜）\n・金沢21世紀美術館 トークイベントMC（2024）\n・北陸アートフェスティバル 新人賞（2025）',
+    contribution: '博物館・美術館の音声ガイド、アートイベント、伝統産業の魅力を若年層へ分かりやすく面白く伝えるPR企画をデザイン。',
+    strength: '金沢美術工芸大学卒の元学芸員。美大仕込みのフリップ芸や歴史的背景を噛み砕く、知性と笑いを両立したインテリ系お笑いが特徴。',
+    tag: '元学芸員・カルチャー'
+  },
+  {
+    id: '7',
+    name: 'ハイカラ横丁',
+    duoName: '（レン・ミユ）',
+    region: '栃木県',
+    experience: 4,
+    genre: '男女コント・Z世代日常',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '地方都市で暮らす若者のリアルな空気感をコントにしています。「地方の若者あるある」は、全国のSNSで共感されています。',
+    career: '・とちぎテレビ「Z世代トレンド研究所」メインMC（2024〜）\n・TikTok公式クリエイターアワード（ローカルコメディ部門賞・2025）\n・北関東若手お笑いライブ 優勝',
+    contribution: 'Z世代をターゲットにした番組や、自治体の若者向け認知獲得SNS、学園祭イベントを劇的にバズらせます！',
+    strength: 'TikTok総フォロワー35万人。地方都市に暮らす若者の日常を鋭く切り取った男女シチュエーションコントが、全国の10代に刺さっています。',
+    tag: 'TikTok35万人'
+  },
+  {
+    id: '8',
+    name: '安芸もみじ丸',
+    duoName: '（瀬戸・宮島）',
+    region: '広島県',
+    experience: 11,
+    genre: 'スポーツ熱狂漫才',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '広島の熱気をそのままマイクにぶつけて11年。地元スポーツ愛なら東京のどのタレントにも負けない自負があります。',
+    career: '・広島ホームテレビ「勝ちグセ。サタデー」リポーター（2022〜）\n・M-1グランプリ 準々決勝進出（2023）\n・地元プロ野球・サッカー中継の副音声ゲスト（年間多数）',
+    contribution: '地元愛100%！広島ローカルスポーツの応援番組、ファン熱狂イベント、白熱したスタジアム中継を強力に盛り上げます。',
+    strength: '広島弁の圧倒的なスピード感と情熱。地元球団やスポーツクラブの歴史、選手名鑑を網羅したスポーツファン垂涎の超ニッチネタが得意。',
+    tag: '地元球団ニッチネタ'
+  },
+  {
+    id: '9',
+    name: 'シーサーチャンプルー',
+    duoName: 'ピン芸人：比嘉おじぃ',
+    region: '沖縄県',
+    experience: 7,
+    genre: '社会派漫談・コラムトーク',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '沖縄の歴史やリアルな暮らしを、笑いに包んで語り継ぎたい。ドキュメンタリー番組のナレーションやコラムでも活動しています。',
+    career: '・琉球放送「島ネタコラム」月曜レギュラーコメンテーター（2024〜）\n・沖縄国際映画祭 地元特別ステージ出演\n・沖縄県警「交通安全キャンペーン」メイン大使（2025）',
+    contribution: '観光プロモーション、平和学習、地域社会問題など、大人の知的好奇心を刺激するドキュメンタリー調バラエティにマッチします。',
+    strength: '沖縄のリアルな生活事情や特有の文化をユーモアたっぷりに語りかける、全国的にも珍しい「社会派ウチナー漫談」。',
+    tag: '社会派ウチナー漫談'
+  },
+  {
+    id: '10',
+    name: '越前カニ三昧',
+    duoName: '（カニ・三昧）',
+    region: '福井県',
+    experience: 1,
+    genre: 'ノンバーバル（無言語）コント',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    story: '言葉が通じなくても爆笑は作れる。北陸新幹線の開通でやってくる世界中の観光客を笑顔にするサイレントコメディです。',
+    career: '・福井放送「新幹線で行く！若手体当たり旅」（2025）\n・北陸ローカルCM「福井えちぜんグルメ」出演（2026）',
+    contribution: 'インバウンド（訪日外国人）向けイベント、言葉の壁を超えたノンバーバルエンタメ企画。',
+    strength: '顔芸とアクロバティックな動き、視覚的な道具だけを用いる、外国人観光客に「言葉なしで爆笑される」サイレントコント。',
+    tag: 'インバウンド・サイレント'
+  }
+];
+
+const PREFECTURES = [
+  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+  "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+  "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+  "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+];
+
+const GENRES = ["すべて", "ピン芸・ロケ", "漫才・Z世代コンテンツ", "コント・行政タイアップ", "王道しゃべくり漫才", "農業漫才・シニアトーク", "アート解説・インテリ解説", "スポーツ熱狂漫才", "社会派漫談・コラムトーク", "ノンバーバル（無言語）コント"];
+const REGIONS_SHORTCUT = ["すべて", "北海道", "秋田県", "栃木県", "石川県", "福井県", "愛知県", "広島県", "香川県", "福岡県", "沖縄県"];
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('top'); // 'top' | 'list' | 'register' | 'detail'
+  const [artists, setArtists] = useState(INITIAL_ARTISTS);
+  const [selectedArtistId, setSelectedArtistId] = useState(null);
+  
+  // フィルター状態
+  const [filterRegion, setFilterRegion] = useState('すべて');
+  const [filterGenre, setFilterGenre] = useState('すべて');
+  const [searchKeyword, setSearchKeyword] = useState('');
+
+  // 芸人登録フォーム状態
+  const [formData, setFormData] = useState({
+    name: '',
+    duoName: '',
+    region: '香川県',
+    experience: 1,
+    genre: 'ピン芸・ロケ',
+    videoUrl: '',
+    story: '',
+    career: '',
+    contribution: '',
+    strength: ''
+  });
+  
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState(false);
+  
+  // 問い合わせフォーム状態
+  const [contactName, setContactName] = useState('');
+  const [contactCompany, setContactCompany] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactBody, setContactBody] = useState('');
+  const [isContactSuccess, setIsContactSuccess] = useState(false);
+
+  // フィルタリング処理
+  const filteredArtists = useMemo(() => {
+    return artists.filter(artist => {
+      const matchRegion = filterRegion === 'すべて' || artist.region === filterRegion;
+      const matchGenre = filterGenre === 'すべて' || artist.genre === filterGenre;
+      const matchKeyword = !searchKeyword.trim() || (
+        artist.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        artist.duoName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        artist.story.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        artist.career.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        artist.contribution.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+        artist.strength.toLowerCase().includes(searchKeyword.toLowerCase())
+      );
+      return matchRegion && matchGenre && matchKeyword;
+    });
+  }, [artists, filterRegion, filterGenre, searchKeyword]);
+
+  // 詳細表示のアーティスト
+  const selectedArtist = useMemo(() => {
+    return artists.find(a => a.id === selectedArtistId);
+  }, [artists, selectedArtistId]);
+
+  // 登録処理
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) {
+      setFormError('お名前（芸人名・グループ名）を入力してください。');
+      return;
+    }
+
+    const newArtist = {
+      id: String(artists.length + 1),
+      name: formData.name,
+      duoName: formData.duoName ? `（${formData.duoName}）` : '個人活動',
+      region: formData.region,
+      experience: Number(formData.experience),
+      genre: formData.genre,
+      videoUrl: formData.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      story: formData.story || '地方からでも本物の笑いを届けるために日々挑戦を続けています。',
+      career: formData.career || '地元のイベント・ライブ出演多数',
+      contribution: formData.contribution || '地域の熱量を形にし、全力で番組・イベントに貢献します！',
+      strength: formData.strength || '現場に合わせたフレキシブルな対応力と地域密着の好感度。',
+      tag: '新規掲載タレント'
+    };
+
+    setArtists([newArtist, ...artists]);
+    setFormSuccess(true);
+    setFormError('');
+    
+    setTimeout(() => {
+      setFormData({
+        name: '',
+        duoName: '',
+        region: '香川県',
+        experience: 1,
+        genre: 'ピン芸・ロケ',
+        videoUrl: '',
+        story: '',
+        career: '',
+        contribution: '',
+        strength: ''
+      });
+      setFormSuccess(false);
+      setCurrentPage('list');
+    }, 2000);
+  };
+
+  // 問い合わせ処理
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    if (!contactName || !contactCompany || !contactEmail || !contactBody) {
+      alert('すべての項目を入力してください。');
+      return;
+    }
+    setIsContactSuccess(true);
+    setTimeout(() => {
+      setIsContactSuccess(false);
+      setContactName('');
+      setContactCompany('');
+      setContactEmail('');
+      setContactBody('');
+    }, 3000);
+  };
+
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    try {
+      if (url.includes('youtu.be/')) {
+        return `https://www.youtube.com/embed/${url.split('youtu.be/')[1].split('?')[0]}`;
+      } else if (url.includes('watch?v=')) {
+        return `https://www.youtube.com/embed/${url.split('watch?v=')[1].split('&')[0]}`;
+      } else if (url.includes('embed/')) {
+        return url;
+      }
+    } catch (e) {}
+    return '';
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FBF9F6] text-stone-800 font-sans selection:bg-amber-100 selection:text-amber-900">
+      
+      {/* 共通ヘッダー：温かみと洗練を備えたミニマルデザイン */}
+      <header className="border-b border-stone-200/70 bg-[#FBF9F6]/90 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          
+          <button 
+            onClick={() => { setCurrentPage('top'); }} 
+            className="text-left focus:outline-none rounded"
+          >
+            <BrandLogo showSub={true} />
+          </button>
+
+          <nav className="flex items-center space-x-1 sm:space-x-3 text-xs sm:text-sm">
+            <button
+              onClick={() => { setCurrentPage('top'); }}
+              className={`px-3 py-1.5 rounded-full transition-all font-medium ${currentPage === 'top' ? 'text-amber-900 bg-amber-100/60 font-semibold' : 'text-stone-600 hover:text-stone-900'}`}
+            >
+              想い・ホーム
+            </button>
+            <button
+              onClick={() => { 
+                setFilterRegion('すべて');
+                setFilterGenre('すべて');
+                setSearchKeyword('');
+                setCurrentPage('list'); 
+              }}
+              className={`px-3 py-1.5 rounded-full transition-all font-medium ${currentPage === 'list' ? 'text-amber-900 bg-amber-100/60 font-semibold' : 'text-stone-600 hover:text-stone-900'}`}
+            >
+              才能を探す
+            </button>
+            <button
+              onClick={() => { setCurrentPage('register'); }}
+              className="ml-2 inline-flex items-center space-x-1.5 bg-stone-900 hover:bg-stone-800 text-stone-100 px-4 py-2 text-xs font-medium rounded-full transition-all shadow-sm"
+            >
+              <UserPlus className="w-3.5 h-3.5 text-amber-400" />
+              <span>才能を掲載する</span>
+            </button>
+          </nav>
+
+        </div>
+      </header>
+
+      {/* メインコンテンツ */}
+      <main>
+        
+        {/* ① トップページ：noteのような質感と共感主導のストーリーテリング */}
+        {currentPage === 'top' && (
+          <div className="animate-fadeIn">
+            
+            {/* エモーショナル・ヒーローセクション */}
+            <section className="pt-16 pb-20 sm:pt-24 sm:pb-28 border-b border-stone-200/60 relative overflow-hidden bg-gradient-to-b from-[#FBF9F6] via-amber-50/20 to-[#FBF9F6]">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                
+                {/* 感情に深く共感するメインコピー */}
+                <div className="inline-flex items-center space-x-2 bg-amber-100/70 border border-amber-200/60 text-amber-900 text-xs px-3.5 py-1.5 rounded-full mb-8 font-medium">
+                  <Heart className="w-3.5 h-3.5 text-amber-600 fill-amber-500/20" />
+                  <span>地方で挑戦し続ける、すべての表現者へ</span>
+                </div>
+
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif tracking-tight text-stone-900 leading-relaxed sm:leading-snug mb-8 font-normal">
+                  「実力はあるのに、見つけてもらえない。」<br />
+                  <span className="text-stone-400 font-light text-xl sm:text-3xl block mt-2">東京に行かなきゃ、無理なのかな。</span>
+                </h1>
+
+                <p className="text-stone-600 text-base sm:text-lg leading-loose font-light max-w-2xl mx-auto mb-12">
+                  地元の人たちを笑わせ、地域を誰よりも盛り上げてきた。<br />
+                  なのに「地方にいる」という理由だけで、チャンスが届かない。<br />
+                  そんな理不尽な格差を、私たちは終わらせたい。
+                </p>
+
+                {/* 希望のメッセージへの接続 */}
+                <div className="bg-white/80 backdrop-blur border border-stone-200/80 p-8 sm:p-10 rounded-2xl shadow-sm max-w-2xl mx-auto text-left relative my-8">
+                  <Quote className="w-8 h-8 text-amber-500/20 absolute top-4 left-4" />
+                  <p className="text-amber-900 font-serif text-lg sm:text-xl font-medium tracking-wide leading-relaxed mb-4 pl-4 border-l-2 border-amber-500">
+                    「地方からでも、見つかる。」
+                  </p>
+                  <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light pl-4">
+                    Locaspot（ロカスポット）は、地方で磨かれた本物の才能を、全国の地方テレビ局やメディア関係者へダイレクトに可視化する発掘プラットフォームです。
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                  <button
+                    onClick={() => { 
+                      setFilterRegion('すべて');
+                      setFilterGenre('すべて');
+                      setSearchKeyword('');
+                      setCurrentPage('list'); 
+                    }}
+                    className="w-full sm:w-auto bg-stone-900 hover:bg-stone-800 text-stone-100 text-sm font-medium px-8 py-4 rounded-full transition-all flex items-center justify-center space-x-2 shadow-sm"
+                  >
+                    <span>地方で光る10組の才能を見る</span>
+                    <ChevronRight className="w-4 h-4 text-amber-400" />
+                  </button>
+                  <button
+                    onClick={() => { setCurrentPage('register'); }}
+                    className="w-full sm:w-auto bg-white hover:bg-stone-50 text-stone-800 border border-stone-300/80 text-sm font-medium px-8 py-4 rounded-full transition-all flex items-center justify-center space-x-2"
+                  >
+                    <UserPlus className="w-4 h-4 text-amber-600" />
+                    <span>自分の才能・強みを登録する</span>
+                  </button>
+                </div>
+
+              </div>
+            </section>
+
+            {/* note風の「私たちの想い（ステートメント）」セクション */}
+            <section className="py-20 sm:py-24 bg-white border-b border-stone-200/60">
+              <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="text-center mb-12">
+                  <span className="text-xs font-semibold text-amber-700 tracking-widest uppercase block mb-2">OUR MANIFESTO</span>
+                  <h2 className="text-2xl sm:text-3xl font-serif text-stone-900 tracking-tight">
+                    なぜ、このサービスを作ったのか
+                  </h2>
+                </div>
+
+                <div className="prose prose-stone max-w-none text-stone-600 text-sm sm:text-base leading-loose font-light space-y-6">
+                  <p>
+                    日本各地のライブハウスやローカル番組、地域のお祭りには、驚くほど面白い芸人やタレントがたくさんいます。
+                    彼らは地元の食文化や人情を知り尽くし、目の前のお客さんを瞬時に笑顔にする本物の現場力を持っています。
+                  </p>
+                  <p>
+                    しかし、これまでは「東京の有名事務所に所属していないから」「地方に住んでいるから」という理由だけで、
+                    全国の番組プロデューサーや制作会社の目に留まる機会すら与えられてきませんでした。
+                  </p>
+                  <p className="p-6 bg-stone-50 rounded-xl border-l-4 border-amber-500 italic text-stone-800 font-normal">
+                    「上京しなければ夢は叶わない」という時代は、もう終わりにしたい。<br />
+                    地方で暮らし、地域を愛しながらも、その才能が正当に評価され、全国からオファーが届く世界を作りたい。
+                  </p>
+                  <p>
+                    Locaspotは、単なる条件検索サイトではありません。タレント一人ひとりが抱いてきた葛藤や独自の強み、現場で発揮できるリアルな貢献力を言葉と動画で可視化する「才能のショーケース」です。
+                  </p>
+                </div>
+
+              </div>
+            </section>
+
+            {/* 2つのユーザーに向けた価値提供（タレント＆メディア） */}
+            <section className="py-20 bg-[#FBF9F6] border-b border-stone-200/60">
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  
+                  {/* 芸人・タレント向け */}
+                  <div className="bg-white border border-stone-200/80 p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm mb-6">
+                        01
+                      </div>
+                      <h3 className="text-xl font-serif font-medium text-stone-900 mb-3">
+                        地方芸人・タレントの皆様へ
+                      </h3>
+                      <p className="text-stone-500 text-xs sm:text-sm leading-relaxed mb-6 font-light">
+                        「自分には何ができるのか」「他と何が違うのか」。あなたの誇れる強みと動画を1分で登録。東京のプロダクションを経由せず、直接メディアの制作陣に見つかる場所です。
+                      </p>
+                      <ul className="space-y-3 text-xs text-stone-600 font-medium">
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <span>掲載無料。誇りを持てるアピール枠を確保</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <span>100文字要約で自分の「尖った強み」がすぐ伝わる</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <span>番組プロデューサーからの直行オファーが届く</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <button
+                      onClick={() => setCurrentPage('register')}
+                      className="mt-8 text-xs font-semibold text-amber-800 hover:text-amber-900 flex items-center space-x-1 underline"
+                    >
+                      <span>才能を登録してチャンスをつかむ</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* メディア関係者向け */}
+                  <div className="bg-white border border-stone-200/80 p-8 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="w-10 h-10 rounded-full bg-stone-100 text-stone-800 flex items-center justify-center font-bold text-sm mb-6">
+                        02
+                      </div>
+                      <h3 className="text-xl font-serif font-medium text-stone-900 mb-3">
+                        テレビ局・制作関係者の皆様へ
+                      </h3>
+                      <p className="text-stone-500 text-xs sm:text-sm leading-relaxed mb-6 font-light">
+                        定番の有名タレントではなく、地域に根を張り現場対応力に長けた「即戦力」を3分で発掘。番組企画にぴったりマッチする尖った才能がここに揃っています。
+                      </p>
+                      <ul className="space-y-3 text-xs text-stone-600 font-medium">
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-stone-700 flex-shrink-0" />
+                          <span>「ロケ交渉力」「Z世代バズ」「自治体好感度」など強み別検索</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-stone-700 flex-shrink-0" />
+                          <span>アピール動画と過去の地域での実績を事前確認</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-stone-700 flex-shrink-0" />
+                          <span>中間マージンなしでスムーズな問い合わせシミュレーション</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setFilterRegion('すべて');
+                        setFilterGenre('すべて');
+                        setSearchKeyword('');
+                        setCurrentPage('list');
+                      }}
+                      className="mt-8 text-xs font-semibold text-stone-800 hover:text-stone-900 flex items-center space-x-1 underline"
+                    >
+                      <span>全国の才能データベースを閲覧する</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            </section>
+
+            {/* ショーケース・ピックアップ（note風カード） */}
+            <section className="py-20 bg-white">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+                  <div>
+                    <span className="text-xs font-semibold text-amber-700 tracking-widest uppercase block mb-1">FEATURED TALENTS</span>
+                    <h2 className="text-2xl sm:text-3xl font-serif text-stone-900">
+                      いま、地方で輝いている才能たち
+                    </h2>
+                    <p className="text-xs text-stone-400 mt-1 font-light">言葉と実績で選ばれる、10組のタレントストーリー</p>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      setFilterRegion('すべて');
+                      setFilterGenre('すべて');
+                      setSearchKeyword('');
+                      setCurrentPage('list');
+                    }}
+                    className="text-stone-800 hover:text-amber-800 text-xs font-semibold flex items-center space-x-1"
+                  >
+                    <span>すべての才能を見る（{artists.length}組）</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {artists.slice(0, 6).map((artist) => (
+                    <div 
+                      key={artist.id}
+                      onClick={() => {
+                        setSelectedArtistId(artist.id);
+                        setCurrentPage('detail');
+                      }}
+                      className="bg-[#FBF9F6] border border-stone-200/80 hover:border-amber-400/80 rounded-xl p-6 shadow-sm hover:shadow transition-all flex flex-col justify-between cursor-pointer group"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <span className="inline-flex items-center space-x-1 text-[11px] bg-white text-stone-600 px-2.5 py-1 rounded-md font-medium border border-stone-200/60">
+                            <MapPin className="w-3 h-3 text-amber-600" />
+                            <span>{artist.region}</span>
+                          </span>
+                          <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded-full">
+                            {artist.tag}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg font-serif font-medium text-stone-900 group-hover:text-amber-900 transition mb-1">
+                          {artist.name}
+                        </h3>
+                        <p className="text-xs text-stone-400 mb-4">{artist.duoName}</p>
+
+                        <p className="text-xs text-stone-600 font-light leading-relaxed line-clamp-3 mb-4 italic bg-white p-3 rounded-lg border border-stone-200/50">
+                          「{artist.story}」
+                        </p>
+
+                        <div className="text-xs text-stone-700 font-medium">
+                          <strong className="text-amber-900 text-[11px] uppercase tracking-wider block mb-1">強み・貢献策：</strong>
+                          <p className="line-clamp-2 font-normal text-stone-600 text-xs">{artist.strength}</p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-stone-200/60 pt-4 mt-6 flex items-center justify-between text-xs text-stone-400">
+                        <span>芸歴 {artist.experience} 年</span>
+                        <span className="text-amber-800 font-medium group-hover:translate-x-1 transition-transform inline-flex items-center">
+                          詳細ストーリー <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ② 才能の掲載・登録フォーム */}
+        {currentPage === 'register' && (
+          <div className="max-w-3xl mx-auto px-4 py-12 animate-fadeIn">
+            
+            <button 
+              onClick={() => setCurrentPage('top')}
+              className="inline-flex items-center text-xs font-medium text-stone-500 hover:text-stone-900 mb-6 transition"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              トップに戻る
+            </button>
+
+            <div className="bg-white border border-stone-200/80 shadow-sm rounded-2xl overflow-hidden">
+              <div className="bg-[#FBF9F6] p-8 border-b border-stone-200/80">
+                <div className="inline-flex items-center space-x-1.5 bg-amber-100/80 text-amber-900 text-[10px] px-3 py-1 rounded-full mb-3 font-semibold uppercase tracking-wider">
+                  <UserPlus className="w-3 h-3 text-amber-600" />
+                  <span>FOR LOCAL TALENTS</span>
+                </div>
+                <h1 className="text-2xl font-serif text-stone-900">あなたの才能と強みを登録する（無料）</h1>
+                <p className="text-xs sm:text-sm text-stone-500 mt-2 font-light leading-relaxed">
+                  地方に拠点を置きながら、あなたの「強み」と「現場で発揮できる熱量」を全国のメディア関係者へ提示しましょう。
+                </p>
+              </div>
+
+              {formSuccess ? (
+                <div className="p-10 text-center animate-fadeIn">
+                  <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-serif text-stone-900">掲載登録が完了しました</h3>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-2 font-light">
+                    Locaspotの「地方の才能データベース」に即座に追加され、メディアからの検索・閲覧が可能となりました。
+                  </p>
+                  <p className="text-xs text-amber-800 font-medium mt-6 flex items-center justify-center space-x-1">
+                    <Clock className="w-3.5 h-3.5 animate-spin" />
+                    <span>一覧画面へ移動しています...</span>
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleRegisterSubmit} className="p-8 space-y-6">
+                  
+                  {formError && (
+                    <div className="bg-red-50 border border-red-200 p-4 text-xs text-red-700 font-medium rounded-lg">
+                      ⚠️ {formError}
+                    </div>
+                  )}
+
+                  <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider border-b border-stone-200/60 pb-2">1. タレント基本情報</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        芸人名・タレント名 <span className="text-amber-600">*必須</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="例：安芸もみじ丸"
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-[#FBF9F6]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        コンビ名・相方（ピンの場合は空白可）
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="例：瀬戸・宮島"
+                        value={formData.duoName}
+                        onChange={(e) => setFormData({...formData, duoName: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">活動拠点（都道府県）</label>
+                      <select
+                        value={formData.region}
+                        onChange={(e) => setFormData({...formData, region: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                      >
+                        {PREFECTURES.map(p => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">芸歴・活動年数</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={formData.experience}
+                        onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">メインジャンル</label>
+                      <select
+                        value={formData.genre}
+                        onChange={(e) => setFormData({...formData, genre: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                      >
+                        {GENRES.filter(g => g !== 'すべて').map(g => (
+                          <option key={g} value={g}>{g}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider border-b border-stone-200/60 pb-2 pt-4">2. あなたのストーリーと想い</h3>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-stone-700 mb-1">
+                      地方での葛藤や、この活動にかける想い（1〜2文）
+                    </label>
+                    <textarea
+                      rows="2"
+                      placeholder="例：地元で11年活動してきました。東京に行かなくても、地方から全国を驚かせる笑いを作れると信じています。"
+                      value={formData.story}
+                      onChange={(e) => setFormData({...formData, story: e.target.value})}
+                      className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition font-light"
+                    ></textarea>
+                  </div>
+
+                  <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider border-b border-stone-200/60 pb-2 pt-4">3. 動画と強み</h3>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-stone-700 mb-1">YouTubeアピール動画URL</label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-red-500">
+                        <Youtube className="w-4 h-4" />
+                      </span>
+                      <input
+                        type="url"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        value={formData.videoUrl}
+                        onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
+                        className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg pl-9 pr-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-stone-700 mb-1">
+                      「この点が他の芸人・タレントと違う強みです」（100文字程度）
+                    </label>
+                    <textarea
+                      rows="2"
+                      required
+                      placeholder="例：全員が地元育ち。地元プロ球団の裏情報や名鑑データを網羅しており、熱狂的なファンを巻き込むスポーツ中継副音声やロケが得意です。"
+                      value={formData.strength}
+                      onChange={(e) => setFormData({...formData, strength: e.target.value})}
+                      className="w-full text-xs sm:text-sm border border-stone-300/80 rounded-lg px-3.5 py-2.5 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-stone-700 mb-1">
+                      「番組や企画に〇〇で貢献できます」
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="例：アポなし突撃ロケでの店主交渉成功率95%！生放送の現場を確実に沸かせます。"
+                      value={formData.contribution}
+                      onChange={(e) => setFormData({...formData, contribution: e.target.value})}
+                      className="w-full text-xs sm:text-sm border border-amber-300 rounded-lg px-3.5 py-2.5 bg-amber-50/20 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition font-medium"
+                    />
+                  </div>
+
+                  <div className="pt-6 border-t border-stone-200/60 flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-stone-900 hover:bg-stone-800 text-stone-100 font-medium text-xs sm:text-sm px-8 py-3 rounded-full transition-all shadow-sm flex items-center space-x-2"
+                    >
+                      <Send className="w-4 h-4 text-amber-400" />
+                      <span>才能データベースに掲載する</span>
+                    </button>
+                  </div>
+
+                </form>
+              )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ③ 才能データベース一覧 */}
+        {currentPage === 'list' && (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fadeIn">
+            
+            <div className="mb-8 border-b border-stone-200/60 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <span className="text-xs font-semibold text-amber-700 tracking-widest uppercase block mb-1">TALENT DATABASE</span>
+                <h1 className="text-2xl sm:text-3xl font-serif text-stone-900">
+                  地方の才能を探す
+                </h1>
+                <p className="text-xs text-stone-400 mt-1 font-light">
+                  東京の一極集中にとらわれない、実力派ローカルエンターテイナー一覧
+                </p>
+              </div>
+
+              <div className="text-xs text-stone-500 font-medium">
+                該当する才能: <span className="text-base font-bold text-amber-800">{filteredArtists.length}</span> 組
+              </div>
+            </div>
+
+            {/* フィルター */}
+            <div className="bg-white border border-stone-200/80 rounded-xl p-5 mb-8 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-500 uppercase mb-1">
+                    キーワード（強み・特徴）
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                      <Search className="w-4 h-4" />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="例：ロケ、Z世代、シニア、農家"
+                      value={searchKeyword}
+                      onChange={(e) => setSearchKeyword(e.target.value)}
+                      className="w-full text-xs border border-stone-300/80 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                    />
+                    {searchKeyword && (
+                      <button 
+                        onClick={() => setSearchKeyword('')}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-500 uppercase mb-1">活動エリア</label>
+                  <select
+                    value={filterRegion}
+                    onChange={(e) => setFilterRegion(e.target.value)}
+                    className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                  >
+                    <option value="すべて">全国すべての地域</option>
+                    {PREFECTURES.map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-stone-500 uppercase mb-1">パフォーマンスジャンル</label>
+                  <select
+                    value={filterGenre}
+                    onChange={(e) => setFilterGenre(e.target.value)}
+                    className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                  >
+                    {GENRES.map(g => (
+                      <option key={g} value={g}>{g === 'すべて' ? '全ジャンル' : g}</option>
+                    ))}
+                  </select>
+                </div>
+
+              </div>
+            </div>
+
+            {/* カード一覧 */}
+            {filteredArtists.length === 0 ? (
+              <div className="bg-white border border-stone-200/80 rounded-xl p-12 text-center shadow-sm">
+                <Search className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                <h3 className="text-sm font-medium text-stone-800">一致する条件の才能が見つかりませんでした</h3>
+                <p className="text-xs text-stone-400 mt-1">キーワードやフィルターを変更して再検索してください。</p>
+                <button
+                  onClick={() => {
+                    setFilterRegion('すべて');
+                    setFilterGenre('すべて');
+                    setSearchKeyword('');
+                  }}
+                  className="mt-4 bg-stone-900 hover:bg-stone-800 text-stone-100 font-medium text-xs px-4 py-2 rounded-full"
+                >
+                  検索をリセット
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredArtists.map((artist) => (
+                  <div 
+                    key={artist.id}
+                    onClick={() => {
+                      setSelectedArtistId(artist.id);
+                      setCurrentPage('detail');
+                    }}
+                    className="bg-white border border-stone-200/80 hover:border-amber-400/80 rounded-xl p-6 shadow-sm hover:shadow transition-all flex flex-col justify-between cursor-pointer group"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="inline-flex items-center space-x-1 text-xs bg-stone-50 text-stone-600 px-2.5 py-1 rounded-md border border-stone-200/60 font-medium">
+                            <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                            <span>{artist.region}</span>
+                          </span>
+                          <span className="text-xs text-stone-400">芸歴{artist.experience}年</span>
+                        </div>
+                        <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/60 px-2.5 py-0.5 rounded-full">
+                          {artist.tag}
+                        </span>
+                      </div>
+
+                      <h2 className="text-lg font-serif font-medium text-stone-900 group-hover:text-amber-900 transition flex items-center">
+                        {artist.name}
+                        <span className="text-xs text-stone-400 font-normal ml-2">{artist.duoName}</span>
+                      </h2>
+
+                      <p className="text-xs text-stone-500 font-light italic mt-2 mb-4 line-clamp-2">
+                        「{artist.story}」
+                      </p>
+
+                      <div className="bg-[#FBF9F6] p-3 rounded-lg border border-stone-200/50 mb-4">
+                        <strong className="text-[11px] text-stone-700 block font-medium mb-0.5">特筆すべき強み：</strong>
+                        <p className="text-xs text-stone-600 font-normal line-clamp-2">{artist.strength}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-stone-100 pt-4 flex items-center justify-between text-xs text-stone-400">
+                      <span className="inline-flex items-center text-amber-800 font-medium">
+                        <Youtube className="w-3.5 h-3.5 mr-1 text-red-500" />
+                        アピール動画あり
+                      </span>
+                      <span className="text-stone-900 font-medium group-hover:translate-x-1 transition-transform inline-flex items-center">
+                        詳細を見る <ChevronRight className="w-3.5 h-3.5 ml-0.5 text-amber-600" />
+                      </span>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* ④ 才能詳細ページ */}
+        {currentPage === 'detail' && selectedArtist && (
+          <div className="max-w-4xl mx-auto px-4 py-10 animate-fadeIn">
+            
+            <button 
+              onClick={() => setCurrentPage('list')}
+              className="inline-flex items-center text-xs font-medium text-stone-500 hover:text-stone-900 mb-6 transition"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              一覧に戻る
+            </button>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              <div className="lg:col-span-2 space-y-6">
+                
+                <div className="bg-white border border-stone-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="inline-flex items-center space-x-1 text-xs bg-stone-50 text-stone-600 px-3 py-1 rounded-full font-medium border border-stone-200/60">
+                      <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{selectedArtist.region}</span>
+                    </span>
+                    <span className="text-xs text-stone-500 bg-stone-50 px-3 py-1 rounded-full border border-stone-200/60">
+                      {selectedArtist.genre}
+                    </span>
+                    <span className="text-xs text-stone-500 bg-stone-50 px-3 py-1 rounded-full border border-stone-200/60">
+                      芸歴 {selectedArtist.experience}年
+                    </span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl font-serif text-stone-900 mb-1">
+                    {selectedArtist.name}
+                  </h1>
+                  <p className="text-xs text-stone-400 mb-6">{selectedArtist.duoName}</p>
+
+                  <div className="bg-amber-50/40 border-l-3 border-amber-500 p-5 rounded-r-xl mb-6">
+                    <h3 className="text-xs font-semibold text-amber-900 mb-1">本人メッセージ・葛藤</h3>
+                    <p className="text-xs sm:text-sm text-stone-700 font-light leading-relaxed italic">
+                      「{selectedArtist.story}」
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">他の芸人と違う独自の強み</h4>
+                      <p className="text-xs sm:text-sm text-stone-800 leading-relaxed font-normal">
+                        {selectedArtist.strength}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">メディア・番組への貢献約束</h4>
+                      <p className="text-xs sm:text-sm text-amber-900 font-medium leading-relaxed bg-amber-100/30 p-3 rounded-lg border border-amber-200/50">
+                        💡 {selectedArtist.contribution}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 動画 */}
+                <div className="bg-white border border-stone-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+                  <h2 className="text-base font-serif text-stone-900 mb-4 flex items-center gap-2 border-b border-stone-100 pb-3">
+                    <Youtube className="w-5 h-5 text-red-500" />
+                    アピール映像・パフォーマンス動画
+                  </h2>
+                  
+                  <div className="aspect-video w-full rounded-xl overflow-hidden bg-stone-100 border border-stone-200/80 relative flex flex-col items-center justify-center text-center p-4">
+                    {getEmbedUrl(selectedArtist.videoUrl) ? (
+                      <iframe
+                        className="w-full h-full"
+                        src={getEmbedUrl(selectedArtist.videoUrl)}
+                        title={`${selectedArtist.name} 動画`}
+                        allowFullScreen
+                      ></iframe>
+                    ) : (
+                      <div>
+                        <Youtube className="w-12 h-12 text-red-500 mx-auto mb-2 opacity-80" />
+                        <p className="text-xs text-stone-700 font-medium">アピール動画プレイヤー</p>
+                        <a 
+                          href={selectedArtist.videoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-block bg-red-600 text-white font-medium text-xs px-4 py-2 rounded-full"
+                        >
+                          YouTubeで閲覧する
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 出演歴 */}
+                <div className="bg-white border border-stone-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+                  <h2 className="text-base font-serif text-stone-900 mb-4 flex items-center gap-2 border-b border-stone-100 pb-3">
+                    <Award className="w-5 h-5 text-amber-600" />
+                    地域での出演歴・活動実績
+                  </h2>
+                  <div className="text-xs sm:text-sm text-stone-600 leading-relaxed whitespace-pre-line bg-[#FBF9F6] p-4 rounded-xl border border-stone-200/60 font-mono">
+                    {selectedArtist.career}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* 問い合わせ */}
+              <div className="lg:col-span-1">
+                <div className="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-sm sticky top-20">
+                  <h3 className="font-serif font-medium text-stone-900 text-base mb-1">
+                    出演・起用オファー
+                  </h3>
+                  <p className="text-xs text-stone-400 mb-6 font-light">
+                    地方テレビ局・制作会社・イベント主催者専用のダイレクト連絡窓口
+                  </p>
+
+                  {isContactSuccess ? (
+                    <div className="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-center animate-fadeIn">
+                      <CheckCircle className="w-8 h-8 text-amber-600 mx-auto mb-2" />
+                      <h4 className="font-medium text-xs">オファーが送信されました</h4>
+                      <p className="text-[11px] text-stone-500 mt-1">
+                        ※デモ環境でのシミュレーション送信です。
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleContactSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">貴社名・番組名</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="例：秋田テレビ 制作部"
+                          value={contactCompany}
+                          onChange={(e) => setContactCompany(e.target.value)}
+                          className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">ご担当者様お名前</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="例：佐藤（チーフディレクター）"
+                          value={contactName}
+                          onChange={(e) => setContactName(e.target.value)}
+                          className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">メールアドレス</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="sato@example.com"
+                          value={contactEmail}
+                          onChange={(e) => setContactEmail(e.target.value)}
+                          className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">企画・出演依頼内容</label>
+                        <textarea
+                          rows="3"
+                          required
+                          placeholder="例：秋のローカル番組ロケ（約10分）の出演依頼ご相談"
+                          value={contactBody}
+                          onChange={(e) => setContactBody(e.target.value)}
+                          className="w-full text-xs border border-stone-300/80 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500/20"
+                        ></textarea>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full bg-stone-900 hover:bg-stone-800 text-stone-100 font-medium text-xs py-2.5 rounded-full shadow-sm transition-all flex items-center justify-center space-x-1"
+                      >
+                        <Send className="w-3.5 h-3.5 text-amber-400" />
+                        <span>オファーを送る</span>
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+      </main>
+
+      {/* 共通フッター：温かい質感と信頼感の余白 */}
+      <footer className="bg-white border-t border-stone-200/60 mt-20 text-xs text-stone-500">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-8">
+            <div className="max-w-sm">
+              <BrandLogo showSub={true} />
+              <p className="text-stone-400 mt-3 leading-relaxed font-light">
+                Locaspot（ロカスポット）は、東京一極集中や情報格差によって埋もれていた地方の才能を発掘し、全国のメディア・制作陣へつなぐプラットフォームです。
+              </p>
+            </div>
+            
+            <div className="flex space-x-8 font-light">
+              <div>
+                <h4 className="text-stone-800 font-medium mb-2">メニュー</h4>
+                <ul className="space-y-1">
+                  <li><button onClick={() => setCurrentPage('top')} className="hover:text-stone-900">想い・ホーム</button></li>
+                  <li><button onClick={() => setCurrentPage('list')} className="hover:text-stone-900">才能を探す</button></li>
+                  <li><button onClick={() => setCurrentPage('register')} className="hover:text-stone-900">才能を掲載する</button></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between text-stone-400 font-light text-[11px]">
+            <p>© 2026 Locaspot. All Rights Reserved. 地方の才能が埋もれない社会へ。</p>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  );
+}
